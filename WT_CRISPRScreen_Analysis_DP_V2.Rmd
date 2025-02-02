@@ -64,14 +64,10 @@ neg_Ctrl <- "NT sgRNAs"
 #This is also where any output will be saved
 #file_Location <- "D:/CRISPR_Screen_Analysis_dp/WT_Screen/"
 
-<<<<<<< Updated upstream
-file_Location <- "/Users/dylan/Documents/papers_grants_other/SmallMoleculeNuclearCondensates/data/"
-=======
 #file_Location <- "/Users/dylan/Documents/papers_grants_other/SmallMoleculeNuclearCondensates/data/"
 
 file_Location <- "D:/CRISPR_Screen_Analysis_dp/WT_Screen/"
 
->>>>>>> Stashed changes
 #/Desktop/New_Data_AFTER_23_11_17/Dylan_new/NE_Bleb_CRISPR_Screens/TorKO_CRISPR_screen/datasheets/"
 #KOScreen_test_650_661_668_677Cyto.csv
 #OPTIONAL
@@ -89,12 +85,8 @@ trial_Name <- paste("Plate", sep = " ")
 #OR if you have multiple timepoints (OPTIONAL):
 #file_Path <- paste(file_Location, "plate", plate_num, "_", "_trial2/", sep = "")
 
-<<<<<<< Updated upstream
-image_Save_Location <- "/Users/dylan/Documents/papers_grants_other/SmallMoleculeNuclearCondensates/data/"
-=======
 #image_Save_Location <- "/Users/dylan/Documents/papers_grants_other/SmallMoleculeNuclearCondensates/data/"
 image_Save_Location <- "D:/CRISPR_Screen_Analysis_dp/WT_Screen/test/"
->>>>>>> Stashed changes
 
 save_Location <- paste(image_Save_Location, "WT_CRISPR_finalAnalysis.xlsx", sep = "")
 #saveWorkbook(wb, save_Location, overwrite = TRUE)
@@ -103,14 +95,10 @@ save_Location <- paste(image_Save_Location, "WT_CRISPR_finalAnalysis.xlsx", sep 
 
 ```{r}
 #Make a list to iterate and extract all the different analysis run. Then put the following in a loop.
-<<<<<<< Updated upstream
-path_Files <- "/Users/dylan/Documents/papers_grants_other/SmallMoleculeNuclearCondensates/data/"
-=======
 path_Files <- "D:/CRISPR_Screen_Analysis_dp/WT_Screen/"
 
 
 #path_Files <- "/Users/dylan/Documents/papers_grants_other/SmallMoleculeNuclearCondensates/data/"
->>>>>>> Stashed changes
 list_Plate_Runs <- list.files(path_Files)
 
 image_Set_List <- c()
@@ -163,11 +151,7 @@ for (i in 1:length(image_Set_List)){
   top_25 <- df1_MLF2 %>% 
 group_by(ImageNumber) %>%
   arrange(ImageNumber, Children_MLF2_GFP_Count) %>%
-<<<<<<< Updated upstream
-  summarize(Children_MLF2_GFP_Count  = Children_MLF2_GFP_Count, ObjectNumber = ObjectNumber, nlen = ceiling(n() * 0.75))  
-=======
   summarize(Children_MLF2_GFP_Count  = Children_MLF2_GFP_Count, ObjectNumber = ObjectNumber, nlen = ceiling(n() * 0.8))  
->>>>>>> Stashed changes
 
   
   top_25_filtered <- top_25 %>%
@@ -485,13 +469,8 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
     temp_stats_Df$Normalized_Effect <- ((as.numeric(temp_stats_Df$Average_foci_perCell) - neg_control) /  neg_control) * 100
     #Normalizes to both the 25% top control and gene
     
-<<<<<<< Updated upstream
-    mean_population <- mean(as.numeric(temp_stats_Df$mean_NucFociTop))
-    temp_stats_Df$Normalized_Effect_Top <- ((as.numeric(temp_stats_Df$mean_NucFociTop) - mean_population) /  mean_population) * 100
-=======
     mean_population_top <- mean(as.numeric(temp_stats_Df$mean_NucFociTop))
     temp_stats_Df$Normalized_Effect_Top <- ((as.numeric(temp_stats_Df$mean_NucFociTop) - mean_population_top) /  mean_population_top) * 100
->>>>>>> Stashed changes
 
     # Normalized_SD <- sd(temp_stats_Df[c(3:length(temp_stats_Df$Normalized)), "Normalized"])
     # Normalized_SD_Top <- sdsd(temp_stats_Df[c(3:length(temp_stats_Df$Normalized)), "Normalized"])
@@ -513,13 +492,7 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
     #IntraPlate Z score:
     
     #Use IntraPlateZscore top vs top
-<<<<<<< Updated upstream
-    temp_stats_Df$IntraPlateZScoreTopvsTop <- ((as.numeric(temp_stats_Df$Normalized_Effect_Top) - Normalized_mean_Effect_Top) /  Normalized_SD_Effect_Top)  
-    temp_stats_Df$IntraPlateZScoreTopvsAll <- ((as.numeric(temp_stats_Df$Normalized_Effect_Top) - Normalized_mean_Effect) /  Normalized_SD_Effect) 
-
-=======
    
->>>>>>> Stashed changes
     #If excluding the controls:   
     # Normalized_mean_Effect <- mean(temp_stats_Df[3:nrow(temp_stats_Df), ]$Normalized_Effect)
     # Normalized_SD_Effect <- sd(temp_stats_Df[3:nrow(temp_stats_Df), ]$Normalized_Effect)
@@ -560,88 +533,6 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
  
     #Convert to matrix format for the following polish optimization:
       
-<<<<<<< Updated upstream
-    temp_df <- temp_stats_Df[c(1:length(temp_stats_Df$Well_Condition)), c(2,13)]
-    temp_df <- drop_na(temp_df)
-    #as.matrix(stats_Df[, c(2,3)])
-    
-    letters <- substr(temp_df$Well_Condition, 1, 1)
-    
-    numbers <- as.numeric(substr(temp_df$Well_Condition, 2, nchar(as.character(temp_df$Well_Condition))))
-    
-    unique_letters <- unique(letters)
-    unique_numbers <- unique(numbers)
-    
-    sort_num <- sort(unique_numbers)
-    
-    mtx <- matrix(NA, nrow =length(unique_letters), ncol =length(unique_numbers), dimnames = list(unique_letters, unique_numbers))
-    
-    
-    for (i in 1:nrow(temp_df)) {
-      
-      row_index <- match(letters[i], rownames(mtx))
-      col_index <- match(numbers[i], colnames(mtx))
-      
-      # Assign the value to the corresponding position in the matrix
-      mtx[row_index, col_index] <- as.numeric(temp_df$Normalized_Effect_Top[i])
-      #mtx[letters, numbers] <- df2$Average_foci_perCell[i]
-    }
-    
-    
-    #See the following sources for the statistical reasoning:     #https://academic.oup.com/bioinformatics/article/28/13/1775/235775
-    #https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4653387/
-    #Delivering Robust Candidates to the Drug Pipeline through Computational Analysis of Arrayed CRISPR Screens
-    
-    #Use Median Polish Normalization across rows and columns. Take the residuals after data converges.
-    suppress_output <- capture.output({
-      mtx_Polish <- medpolish(mtx)
-      })
-    
-    
-    flush.console()
-    residuals <- mtx_Polish$residuals
-    #Calculate difference between raw measurements and the fitted Polish values
-    #mtx_Adjusted_rijp <- mtx - residuals
-    #Calc median of that fitted matrix.
-    median_residuals <- median(residuals)
-    #Calculate the median absolute deviation and subtract accordingly
-    MAD <- median(abs(residuals - median_residuals))
-
-    #Calculate B-score by taking adjusted matrix and dividing by MAD
-    bScore <- residuals / MAD
-
-    #Convert back into dataframe format
-    row_names <- rownames(bScore)
-    col_names <- colnames(bScore)
-
-    BScoreDf <- data.frame(names = character(0), values = numeric(0))
-
-    # Loop through each element in the matrix
-    for (i in 1:nrow(bScore)) {
-      for (j in 1:ncol(bScore)) {
-        # Get the name by concatenating row and column names
-        Well_Condition <- paste0(row_names[i], sprintf("%02d", as.numeric(col_names[j])))
-
-        # Get the corresponding value from the matrix
-        Bscores <- bScore[i, j]
-
-        # Add the name-value pair to the dataframe
-        BScoreDf <- rbind(BScoreDf, data.frame(Well_Condition = Well_Condition, BScore = Bscores))
-      }
-    }
-
-
-    #Use locally weighted scatterplot smoothing (LOWESS) algorithm to smooth data and adjust for well variability (should definitely use if expecting high number of hits)
-    BScoreDf_LOWESS <- lowess(BScoreDf)$y
-
-    BScoreDf$LOWESS <- BScoreDf_LOWESS
-
-    #Finally, correct the Bscore values:
-
-    BScoreDf$Corrected_BScore <- BScoreDf$BScore - (BScoreDf$LOWESS - median(BScoreDf$LOWESS))
-
-    temp_stats_Df <- merge(temp_stats_Df, BScoreDf, by = "Well_Condition")
-=======
     # temp_df <- temp_stats_Df[c(1:length(temp_stats_Df$Well_Condition)), c(2,11)]
     # temp_df <- drop_na(temp_df)
     # #as.matrix(stats_Df[, c(2,3)])
@@ -732,7 +623,6 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
     
 
    # temp_stats_Df$IntraPlateZScoreAfterCorrectedBScore <- ((as.numeric(temp_stats_Df$Corrected_BScore) - meanCorrectedBScore) /  sdCorrectedBScore) 
->>>>>>> Stashed changes
 
 
 
@@ -795,24 +685,6 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
     labs(title = paste("Normalized Effect on ", foci_Type, ": Plate ", trial_Name,  sep =""), y = "Count", x = paste("% Decrease in ", foci_Type, sep = "")) +
     theme_classic()
     
-<<<<<<< Updated upstream
-    
-    #Add plots for BScore/LOWESS
-    lowess_plot <- ggplot(BScoreDf, aes(x = Well_Condition, y = LOWESS)) + 
-      geom_point(color = "darkred") +   
-      theme_classic() +
-      theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
-      labs(x = "Well Location (upper right to bottom left)", y = "Fitted Values", title = paste("B-Score with LOWESS Regression: ", trial_Name)) +
-      theme(axis.title=element_text(size=10))  
-    
-    bscore_plot <- ggplot(BScoreDf, aes(x = Well_Condition, y = BScore)) + 
-      geom_point(color = "darkred") +   
-      theme_classic() +
-      theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
-      labs(x = "Well Location (upper right to bottom left)", y = "B-Score", title = paste("B-Score ScatterPlot: ", trial_Name)) +
-      theme(axis.title=element_text(size=10))
-    
-=======
     # 
     # #Add plots for BScore/LOWESS
     # lowess_plot <- ggplot(BScoreDf, aes(x = Well_Condition, y = LOWESS)) + 
@@ -829,7 +701,6 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
     #   labs(x = "Well Location (upper right to bottom left)", y = "B-Score", title = paste("B-Score ScatterPlot: ", trial_Name)) +
     #   theme(axis.title=element_text(size=10))
     # 
->>>>>>> Stashed changes
 
 
     #Export the images:
@@ -838,15 +709,9 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
     ggsave(filename = paste0(file_Location,"cell_plate.png"), plot = cell_plate, width = 6, height = 3)
     ggsave(filename = paste0(file_Location,"Normalized_Dist_plate.png"), plot = normalized_Dist, width = 6, height = 3)
     ggsave(filename = paste0(file_Location, "Raw_Dist.png"), plot = raw_Distribution, width = 6, height = 3)
-<<<<<<< Updated upstream
-    ggsave(filename = paste0(file_Location, "bscoreplot.png"), plot = bscore_plot, width = 6, height = 3)      
-    ggsave(filename = paste0(file_Location, "lowessplot.png"), plot = lowess_plot, width = 6, height = 3)
-    
-=======
     # ggsave(filename = paste0(file_Location, "bscoreplot.png"), plot = bscore_plot, width = 6, height = 3)      
     # ggsave(filename = paste0(file_Location, "lowessplot.png"), plot = lowess_plot, width = 6, height = 3)
     # 
->>>>>>> Stashed changes
     
     insertImage(wb, sheet = paste0("Figures_", trial_Name), paste0(file_Location,"Normalized_Dist_plate.png"),startRow = 1, startCol = 1)
     insertImage(wb, sheet = paste0("Figures_", trial_Name), paste0(file_Location,"Raw_Dist.png"),startRow = 1, startCol = 9)
@@ -908,14 +773,6 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
 
 }
 
-<<<<<<< Updated upstream
-
-
-
-
-
-=======
->>>>>>> Stashed changes
 ```
   
   
@@ -927,12 +784,6 @@ options(scipen = 999)
 
 #Only uncomment once finished analyzing all data!!!
 #wb <- loadWorkbook(save_Location)
-<<<<<<< Updated upstream
-wb <- loadWorkbook(save_Location)
-
-#Round the plate statistics (if not previously done)
-plate_stats <- read.xlsx(wb, sheet = "Plate Statistics")
-=======
 
 wb <- loadWorkbook(save_Location)
 
@@ -943,7 +794,6 @@ plate_stats <- read.xlsx(wb, sheet = "Plate Statistics")
 
 
 
->>>>>>> Stashed changes
 plate_numeric <-  colnames(plate_stats[, c(3,4,5,6,7,8,9,10,11,12)])
 plate_stats[plate_numeric] <- lapply(lapply(plate_stats[plate_numeric],as.numeric), function(x) round(x, digits = 2))
 writeData(wb, "Plate Statistics", plate_stats)
@@ -952,11 +802,8 @@ writeData(wb, "Plate Statistics", plate_stats)
 
 merged_df <- read.xlsx(wb, sheet = "Raw_Data")
 combined_across_sqls <- merged_df
-<<<<<<< Updated upstream
-=======
 #combined_across_sqls <- combined_data
 
->>>>>>> Stashed changes
 #combined_across_sqls <-  combined_across_sqls[!grepl("WellCondition", combined_across_sqls$Drug.Information), ]
 combined_across_sqls$Average_foci_perCell <- as.numeric(combined_across_sqls$Average_foci_perCell)
 combined_across_sqls$Normalized_Effect <- as.numeric(combined_across_sqls$Normalized_Effect)
@@ -970,15 +817,6 @@ colnames(gene_template)[1] <- "Plate"
 colnames(gene_template)[2] <- "Well_Condition"
 colnames(gene_template)[3] <- "Gene"
 
-<<<<<<< Updated upstream
-merged_df <- merge(gene_template, combined_across_sqls, by = c("Plate", "Well_Condition"), all = TRUE)
-merged_df <- na.omit(merged_df)
-
-#Average duplicates:
-# merged_df <- merged_df %>% 
-#   group_by(Gene) %>%
-#   summarize()
-=======
 #merged_df <- merge(gene_template, combined_across_sqls, by = c("Plate", "Well_Condition"), all = TRUE)
 #merged_df <- na.omit(merged_df)
 
@@ -995,35 +833,15 @@ merged_df <- merged_df %>%
   summarize(across(where(is.numeric), ~ mean(.x, na.rm = TRUE)), across(where(~ !is.numeric(.x)), first))
 
 merged_df <- merged_df[!merged_df$Average_Cell_Count < 10, ]
->>>>>>> Stashed changes
 
 
 putatives <- read.xlsx(wb, sheet = "Putative Actives")
 
-<<<<<<< Updated upstream
-=======
 merged_df <- merged_df[!merged_df$Average_Cell_Count < 10, ]
->>>>>>> Stashed changes
 
 merged_Df_NoCtrls <- merged_df[!grepl("NT|Ctrl|Well_Condition|PLK1|Nup98|Tor1A_1B", merged_df$Well_Condition), ]
 #screen_Actives_Df_merged <- merge(gene_template, screen_Actives_Df, by = c("Plate", "Well_Condition"))
 
-<<<<<<< Updated upstream
-merged_Df_NoCtrls$Z_Score <-  ((merged_Df_NoCtrls$Corrected_BScore - mean(merged_Df_NoCtrls$Corrected_BScore)) / sd(merged_Df_NoCtrls$Corrected_BScore))
-merged_Df_NoCtrls$Z_Score <- round(merged_Df_NoCtrls$Z_Score, 2)
-
-
-#merged_Df_NoCtrls <- na.omit(merged_Df_NoCtrls)
-screen_Actives_Df <- merged_Df_NoCtrls[merged_Df_NoCtrls$Z_Score > 2.5 | merged_Df_NoCtrls$Z_Score <= -2.5, ]
-
-merged_Df_NoCtrls <- merged_Df_NoCtrls[order(merged_Df_NoCtrls$Z_Score, decreasing = T), ]
-screen_Actives_Df <- screen_Actives_Df[order(screen_Actives_Df$Z_Score, decreasing = T), ]
-
-merged_Df_NoCtrls <- merged_Df_NoCtrls[, c(1,2,3,16, 4,5,6,7,8,9,10,11,12,13,14,15,20)]
-screen_Actives_Df <- screen_Actives_Df[, c(1,2,3,16, 4,5,6,7,8,9,10,11,12,13,14,15,20)]
-#Writes the wells of interest to the XLSX sheet
-writeData(wb, "Putative Actives", screen_Actives_Df)
-=======
 #merged_Df_NoCtrls$Z_Score <-  ((merged_Df_NoCtrls$Corrected_BScore - mean(merged_Df_NoCtrls$Corrected_BScore)) / sd(merged_Df_NoCtrls$Corrected_BScore))
 merged_Df_NoCtrls$IntraPlateZScoreAftermeanEffectTop <- round(merged_Df_NoCtrls$IntraPlateZScoreAftermeanEffectTop, 2)
 
@@ -1055,22 +873,10 @@ if ("Raw_Data" %in% names(wb)) {
 
 addWorksheet(wb, "Raw_Data")
 
->>>>>>> Stashed changes
 writeData(wb, "Raw_Data", merged_Df_NoCtrls)
 
 
 
-<<<<<<< Updated upstream
-normalized_Sd_Bar <- ggplot(data = merged_Df_NoCtrls, aes(x=paste0(Well_Condition, Plate), y = Z_Score, fill = factor(ifelse(Z_Score >= 2.5, "tofill", "nottofill")))) +
-  geom_segment(data = filter(merged_Df_NoCtrls, Z_Score >= 2.5),
-               aes(x = paste0(Well_Condition, Plate), xend = paste0(Well_Condition, Plate), y = 0, yend = Z_Score),
-               color = "red", size = 0.5) +
-  geom_segment(data = filter(merged_Df_NoCtrls, Z_Score < 2.5),
-               aes(x = paste0(Well_Condition, Plate), xend = paste0(Well_Condition, Plate), y = 0, yend = Z_Score),
-               color = "black", size =0.1 )+
-  geom_segment(data = filter(merged_Df_NoCtrls, Gene == "TOR1B"),
-               aes(x = paste0(Well_Condition, Plate), xend = paste0(Well_Condition, Plate), y = 0, yend = Z_Score),
-=======
 normalized_Sd_Bar <- ggplot(data = merged_Df_NoCtrls, aes(x=paste0(Well_Condition, Plate), y = IntraPlateZScoreAftermeanEffectTop, fill = factor(ifelse(IntraPlateZScoreAftermeanEffectTop >= 2.5, "tofill", "nottofill")))) +
   geom_segment(data = filter(merged_Df_NoCtrls, IntraPlateZScoreAftermeanEffectTop >= 2.5),
                aes(x = paste0(Well_Condition, Plate), xend = paste0(Well_Condition, Plate), y = 0, yend = IntraPlateZScoreAftermeanEffectTop),
@@ -1080,7 +886,6 @@ normalized_Sd_Bar <- ggplot(data = merged_Df_NoCtrls, aes(x=paste0(Well_Conditio
                color = "black", size =0.1 )+
   geom_segment(data = filter(merged_Df_NoCtrls, Gene == "TOR1B"),
                aes(x = paste0(Well_Condition, Plate), xend = paste0(Well_Condition, Plate), y = 0, yend = IntraPlateZScoreAftermeanEffectTop),
->>>>>>> Stashed changes
                color = "green", size =1 )+
       scale_fill_manual(values = c("tofill" = "red", "nottofill" ="gray27")) +
 
@@ -1096,11 +901,7 @@ normalized_Sd_Bar <- ggplot(data = merged_Df_NoCtrls, aes(x=paste0(Well_Conditio
   scale_y_continuous(limits = c(-10, -3, 0, 3, 5, 10)) +
   scale_y_continuous(breaks=c( 0, 2, 4,6,8,10)) +
   geom_hline(yintercept = c(2.5), color = "darkred", linetype = "dashed", size = 0.5) +
-<<<<<<< Updated upstream
-  geom_text_repel(data = filter(merged_Df_NoCtrls, Z_Score >= 2.5 ), aes(label = paste0(Gene)), box.padding = 0.3, size = 2.75, max.overlaps = Inf) +
-=======
   geom_text_repel(data = filter(merged_Df_NoCtrls, IntraPlateZScoreAftermeanEffectTop >= 2.5 ), aes(label = paste0(Gene)), box.padding = 0.3, size = 2.75, max.overlaps = Inf) +
->>>>>>> Stashed changes
   guides(fill="none")+
   theme(plot.title = element_text(size = 18)) +
   theme(axis.title = element_text(size = 16)) 
@@ -1361,8 +1162,6 @@ normalized_Sd_Bar
  
 hitz <- hitz[c(1:8, 11),]
 
-<<<<<<< Updated upstream
-=======
 merged_df <- merge(gene_template, combined_across_sqls, by = c("Plate", "Well_Condition"), all = TRUE)
 
 
@@ -1370,7 +1169,6 @@ merged_df <- merged_df %>%
   group_by(Gene) %>%
   summarize(across(where(is.numeric), ~ mean(.x, na.rm = TRUE)), across(where(~ !is.numeric(.x)), first))
 
->>>>>>> Stashed changes
 
 ```
 
