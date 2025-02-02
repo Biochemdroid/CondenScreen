@@ -36,16 +36,12 @@ suppressWarnings({
 
 })
 
-
 ```
 
 ```{r}
 #---------------------------------------------------------------------------------------------
 #MUST PERSONALIZE THIS CODE BLOCK
 #change every run
-
-#Enter the plate number being analyzed
-#plate_num <- "3"
 
 # What Foci are you analyzing?
 foci_Type <- "MLF2-GFP Foci"
@@ -69,10 +65,6 @@ neg_Ctrl <- "NT sgRNAs"
 file_Location <- "D:/CRISPR_Screen_Analysis_dp/WT_Screen/"
 
 #/Desktop/New_Data_AFTER_23_11_17/Dylan_new/NE_Bleb_CRISPR_Screens/TorKO_CRISPR_screen/datasheets/"
-#KOScreen_test_650_661_668_677Cyto.csv
-#OPTIONAL
-#If you have different timepoints:
-#timept <- "24h"
 
 #---------------------------------------------------------------------------------------------
 ```
@@ -81,9 +73,6 @@ file_Location <- "D:/CRISPR_Screen_Analysis_dp/WT_Screen/"
 #defines additional file and save locations based on above path input
 trial_Name <- paste("Plate", sep = " ")
 
-#file_Path <- paste(file_Location, "plate", plate_num, "_trial2/", sep = "")
-#OR if you have multiple timepoints (OPTIONAL):
-#file_Path <- paste(file_Location, "plate", plate_num, "_", "_trial2/", sep = "")
 
 #image_Save_Location <- "/Users/dylan/Documents/papers_grants_other/SmallMoleculeNuclearCondensates/data/"
 image_Save_Location <- "D:/CRISPR_Screen_Analysis_dp/WT_Screen/test/"
@@ -205,9 +194,7 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
   filter(summary_condition) %>%
   summarise(Nuclei_Number = mean(Nuclei_Number), mean_Nuc_Foci = mean(mean_Nuc_Foci, na.rm = T), Ratio_totalMLF2_vs_Cyto = mean(Ratio_totalMLF2_vs_Cyto), Avg_Size_Foci = mean(Avg_Size_Foci), mean_NucNumberTop = mean(Nuclei_Number_top), mean_NucFociTop = mean(mean_Nuc_Foci_top))
   
-#This would filter out lowest and highest image.
-# filter(mean_Nuc_Foci < max(mean_Nuc_Foci)) %>%
-# filter(mean_Nuc_Foci > min(mean_Nuc_Foci)) %>%
+
 
   individual_Plates <- split(per_Well_Plate, f = per_Well_Plate$plate_Num)
 
@@ -247,11 +234,7 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
   #Iterates over each plate to return the well location for its condition unless otherwise specified (e.g., a control)
 
     individual_Plates[[plate]] <- subset(individual_Plates[[plate]], !grepl("Remove_", condition))
-    # individual_Plates[[plate]]$condition[individual_Plates[[plate]]$condition == "Remove_"] <- NA 
-    # individual_Plates <- na.omit(individual_Plates)
-    
-    
-    
+
     
     #This is a function to iterate the statistical analysis over each of the conditions per plate
     
@@ -263,10 +246,6 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
       # well_Name <- unique(individual_Plates[[plate]]$Well_Num)
       trial_Name_Cond <- conditions$plate_Num
       well_Name <- conditions$Well_Num
-      
-      # mean_Nuc_Foci <- individual_Plates[[plate]]$mean_Nuc_Foci
-      # mean_Cyto_Foci <- individual_Plates[[plate]]$mean_Cyto_Foci
-      # well_Cell_Count <- individual_Plates[[plate]]$Nuclei_Number
       
       mean_Nuc_Foci <- conditions$mean_Nuc_Foci
       mean_NucFociTop <- conditions$mean_NucFociTop
@@ -391,12 +370,7 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
     #Coefficient of Variation (standard deviation / mean), lower = less variation across replicates. We are looking for CV < 15%
       #Most important for negative control, but might as well calculate for all wells.
     CV_Nuc_Foci_PosCtrl <- cv(filter(individual_Plates[[plate]], str_detect(condition, 'Tor1A_1B'))$mean_Nuc_Foci) * 100
-    
-    #Cytoplasm
-    #mean_Cyto_Foci_PosCtrl <- mean(filter(individual_Plates[[plate]], str_detect(condition, 'Ctrl'))$mean_Cyto_Foci)
-    #Optional
-    #sd_Cyto_Foci_NegCtrl <- sd(Negative_Ctrl$mean_Cyto_Foci)
-    
+
     #Nuclei Count:
     mean_Cell_PosCtrl <- mean(filter(individual_Plates[[plate]], str_detect(condition, 'Tor1A_1B'))$Nuclei_Number)
     
@@ -447,16 +421,10 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
     }
     
     
-    
     # #Normalization of Compounds [Negative effect = 0%; Positive effect = 100%]
     neg_control <- mean_Nuc_Foci_NegCtrl
     pos_control <- mean_Nuc_Foci_PosCtrl
   
-    #Normalization of Compounds [Negative effect = 0%; Positive effect = 100%]
-
-    #"Blanking" the Foci:
-    #temp_stats_Df$Normalized <- (as.numeric(temp_stats_Df$Average_foci_perCell) - neg_control)
-
     #Reverse normalization
     #temp_stats_Df$Normalized <- (neg_control - as.numeric(temp_stats_Df$Average_foci_perCell)) / (neg_control - pos_control)
     
@@ -472,9 +440,6 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
     mean_population_top <- mean(as.numeric(temp_stats_Df$mean_NucFociTop))
     temp_stats_Df$Normalized_Effect_Top <- ((as.numeric(temp_stats_Df$mean_NucFociTop) - mean_population_top) /  mean_population_top) * 100
 
-    # Normalized_SD <- sd(temp_stats_Df[c(3:length(temp_stats_Df$Normalized)), "Normalized"])
-    # Normalized_SD_Top <- sdsd(temp_stats_Df[c(3:length(temp_stats_Df$Normalized)), "Normalized"])
-  
     #Takes the mean and standard deviation of the normalization of the screening population
     #NOTE: WILL REMOVE THE FIRST TWO CONDITIONS AS THOSE WERE SET TO BE THE POSITIVE AND NEGATIVE CONTROLS
     #stats_Df_WithoutCtrls <- temp_stats_Df[!grepl("NT sgRNAs|Ctrl", stats_Df$Well_Condition), ]
@@ -487,28 +452,12 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
     Normalized_mean_Effect_Top <- mean(temp_stats_Df$Normalized_Effect_Top)
     Normalized_SD_Effect_Top <- sd(temp_stats_Df$Normalized_Effect_Top)
   
-    
-    #IntraPlate Z score:
-    #IntraPlate Z score:
-    
-    #Use IntraPlateZscore top vs top
-   
-    #If excluding the controls:   
-    # Normalized_mean_Effect <- mean(temp_stats_Df[3:nrow(temp_stats_Df), ]$Normalized_Effect)
-    # Normalized_SD_Effect <- sd(temp_stats_Df[3:nrow(temp_stats_Df), ]$Normalized_Effect)
-  
       
     mean_minus_3SD <- Normalized_mean_Effect - 3*Normalized_SD_Effect
     mean_plus_3SD <- Normalized_mean_Effect + 3*Normalized_SD_Effect
     
     
-    
-    #Returns a list of the Z score normalization (standardization) of the entire screen. Putative screen actives are (+/- 3)
-    #stats_Df$Normalized_SD <- (temp_stats_Df$Normalized - Normalized_mean) / Normalized_SD
-    
-    #DO THIS AFTER ALL PLATES ARE FINISHED
-    #$Normalized_SD <- (temp_stats_Df$Normalized - mean(temp_stats_Df[c(3:length(temp_stats_Df$Normalized)), "Normalized"]) / Normalized_SD)
-    
+
     #Add cytotoxicity results:
     #stats_Df$Viability <-  round((as.numeric(temp_stats_Df$Average_Cell_Count)/mean_Cell_NegCtrl)*100, 2)
     temp_stats_Df$Viability <-  round((as.numeric(temp_stats_Df$Average_Cell_Count)/mean_Cell_NegCtrl)*100, 2)
@@ -519,111 +468,17 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
     
     numerical <- sapply(temp_stats_Df, is.numeric)
     temp_stats_Df[numerical] <- lapply(temp_stats_Df[numerical], function(x) round(x, digits = 2))
-    #stats_Df <- stats_Df[, c(1,2,10,12,14,13,3,5,6,11,4,7,9,8)]
-    
-    #This adds the plate number into the corresponding well ID for each condition. Only necessary if analyzing multiple plates in a high throughput screen
-    #stats_Df$Well_Condition <- paste(stats_Df$Well_Condition, plate_num, sep = "_")
-    
-    #Re-order columns of dataframe to make simpler to interpret:
-    #merged_Df <- rbind(merged_Df, stats_Df)
-  
-  
+
+
     current_Plate <-individual_Plates[[plate]][individual_Plates[[plate]]$plate_Num == trial_Name,  ]
   
- 
-    #Convert to matrix format for the following polish optimization:
-      
-    # temp_df <- temp_stats_Df[c(1:length(temp_stats_Df$Well_Condition)), c(2,11)]
-    # temp_df <- drop_na(temp_df)
-    # #as.matrix(stats_Df[, c(2,3)])
-    # 
-    # letters <- substr(temp_df$Well_Condition, 1, 1)
-    # 
-    # numbers <- as.numeric(substr(temp_df$Well_Condition, 2, nchar(as.character(temp_df$Well_Condition))))
-    # 
-    # unique_letters <- unique(letters)
-    # unique_numbers <- unique(numbers)
-    # 
-    # sort_num <- sort(unique_numbers)
-    # 
-    # mtx <- matrix(NA, nrow =length(unique_letters), ncol =length(unique_numbers), dimnames = list(unique_letters, unique_numbers))
-    # 
-    # 
-    # for (i in 1:nrow(temp_df)) {
-    #   
-    #   row_index <- match(letters[i], rownames(mtx))
-    #   col_index <- match(numbers[i], colnames(mtx))
-    #   
-    #   # Assign the value to the corresponding position in the matrix
-    #   mtx[row_index, col_index] <- as.numeric(temp_df$mean_NucFociTop[i])
-    #   #mtx[letters, numbers] <- df2$Average_foci_perCell[i]
-    # }
-    # 
-    # 
-    # #See the following sources for the statistical reasoning:     #https://academic.oup.com/bioinformatics/article/28/13/1775/235775
-    # #https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4653387/
-    # #Delivering Robust Candidates to the Drug Pipeline through Computational Analysis of Arrayed CRISPR Screens
-    # 
-    # #Use Median Polish Normalization across rows and columns. Take the residuals after data converges.
-    # suppress_output <- capture.output({
-    #   mtx_Polish <- medpolish(mtx)
-    #   })
-    # 
-    # 
-    # flush.console()
-    # residuals <- mtx_Polish$residuals
-    # #Calculate difference between raw measurements and the fitted Polish values
-    # #mtx_Adjusted_rijp <- mtx - residuals
-    # #Calc median of that fitted matrix.
-    # median_residuals <- median(residuals)
-    # #Calculate the median absolute deviation and subtract accordingly
-    # MAD <- median(abs(residuals - median_residuals))
-    # 
-    # #Calculate B-score by taking adjusted matrix and dividing by MAD
-    # bScore <- residuals / MAD
-    # 
-    # #Convert back into dataframe format
-    # row_names <- rownames(bScore)
-    # col_names <- colnames(bScore)
-    # 
-    # BScoreDf <- data.frame(names = character(0), values = numeric(0))
-    # 
-    # # Loop through each element in the matrix
-    # for (i in 1:nrow(bScore)) {
-    #   for (j in 1:ncol(bScore)) {
-    #     # Get the name by concatenating row and column names
-    #     Well_Condition <- paste0(row_names[i], sprintf("%02d", as.numeric(col_names[j])))
-    # 
-    #     # Get the corresponding value from the matrix
-    #     Bscores <- bScore[i, j]
-    # 
-    #     # Add the name-value pair to the dataframe
-    #     BScoreDf <- rbind(BScoreDf, data.frame(Well_Condition = Well_Condition, BScore = Bscores))
-    #   }
-    # }
-    # 
-    # 
-    # #Use locally weighted scatterplot smoothing (LOWESS) algorithm to smooth data and adjust for well variability (should definitely use if expecting high number of hits)
-    # BScoreDf_LOWESS <- lowess(BScoreDf)$y
-    # 
-    # BScoreDf$LOWESS <- BScoreDf_LOWESS
-    # 
-    # #Finally, correct the Bscore values:
-    # 
-    # BScoreDf$Corrected_BScore <- BScoreDf$BScore - (BScoreDf$LOWESS - median(BScoreDf$LOWESS))
-    # 
-    # temp_stats_Df <- merge(temp_stats_Df, BScoreDf, by = "Well_Condition")
-    # 
+
     
     meanEffectTop <- mean(as.numeric(temp_stats_Df$Normalized_Effect_Top))
     sdEffectTop <- sd(as.numeric(temp_stats_Df$Normalized_Effect_Top))
        
     #Intra-plate Z-score.
     temp_stats_Df$IntraPlateZScoreAftermeanEffectTop <- ((as.numeric(temp_stats_Df$Normalized_Effect_Top) - meanEffectTop) /  sdEffectTop)  
-    
-
-   # temp_stats_Df$IntraPlateZScoreAfterCorrectedBScore <- ((as.numeric(temp_stats_Df$Corrected_BScore) - meanCorrectedBScore) /  sdCorrectedBScore) 
-
 
 
 
@@ -685,23 +540,6 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
     labs(title = paste("Normalized Effect on ", foci_Type, ": Plate ", trial_Name,  sep =""), y = "Count", x = paste("% Decrease in ", foci_Type, sep = "")) +
     theme_classic()
     
-    # 
-    # #Add plots for BScore/LOWESS
-    # lowess_plot <- ggplot(BScoreDf, aes(x = Well_Condition, y = LOWESS)) + 
-    #   geom_point(color = "darkred") +   
-    #   theme_classic() +
-    #   theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
-    #   labs(x = "Well Location (upper right to bottom left)", y = "Fitted Values", title = paste("B-Score with LOWESS Regression: ", trial_Name)) +
-    #   theme(axis.title=element_text(size=10))  
-    # 
-    # bscore_plot <- ggplot(BScoreDf, aes(x = Well_Condition, y = BScore)) + 
-    #   geom_point(color = "darkred") +   
-    #   theme_classic() +
-    #   theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
-    #   labs(x = "Well Location (upper right to bottom left)", y = "B-Score", title = paste("B-Score ScatterPlot: ", trial_Name)) +
-    #   theme(axis.title=element_text(size=10))
-    # 
-
 
     #Export the images:
     ggsave(filename = paste0(file_Location,"nuc_plate.png"), plot = nuc_plate, width = 6, height = 3)
@@ -728,8 +566,7 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
     
      
     #Merge Datasets:
-    #merged_Df_temp <- cbind(stats_Df[, cbind(1,2)], temp_stats_Df[, 3:ncol(temp_stats_Df)])
-    #merged_Df <- rbind(merged_Df, temp_stats_Df) 
+   
     temp_stats_Df <- transform(temp_stats_Df, Average_foci_perCell = as.numeric(Average_foci_perCell))
     temp_stats_Df <- transform(temp_stats_Df, Average_Cell_Count = as.numeric(Average_Cell_Count))
     #temp_stats_Df <- transform(temp_stats_Df, Average_Cyto_Foci = as.numeric(Average_Cyto_Foci))
@@ -751,7 +588,6 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
   
      
     # Write the updated data to the same worksheet
-    #writeData(wb, sheet = "Raw_Data", x = temp_stats_Df, startCol = 1, startRow = nrow(existing_data) + 3, append = TRUE)
     combined_data <- rbind(existing_data, temp_stats_Df)
     
     numerical_plate <- sapply(empty_df_plate, is.numeric)
@@ -807,7 +643,6 @@ combined_across_sqls <- merged_df
 #combined_across_sqls <-  combined_across_sqls[!grepl("WellCondition", combined_across_sqls$Drug.Information), ]
 combined_across_sqls$Average_foci_perCell <- as.numeric(combined_across_sqls$Average_foci_perCell)
 combined_across_sqls$Normalized_Effect <- as.numeric(combined_across_sqls$Normalized_Effect)
-#combined_across_sqls$Normalized_SD <- as.numeric(combined_across_sqls$Normalized_SD)
 
 
 
@@ -816,9 +651,6 @@ gene_template <- gene_template[, c("Plate.Name", "Plate.Well", "Gene.Symbol")]
 colnames(gene_template)[1] <- "Plate"
 colnames(gene_template)[2] <- "Well_Condition"
 colnames(gene_template)[3] <- "Gene"
-
-#merged_df <- merge(gene_template, combined_across_sqls, by = c("Plate", "Well_Condition"), all = TRUE)
-#merged_df <- na.omit(merged_df)
 
 
 merged_df <- merge(gene_template, combined_across_sqls, by = c("Plate", "Well_Condition"), all = TRUE)
@@ -913,61 +745,6 @@ normalized_Sd_Bar
 # tiff(paste(image_Save_Location, "normalized_WT_Confidential.tiff", sep = ""), units="in", width=14, height=10, res=300)
 # print(normalized_Sd_Bar)
 # dev.off()
-
-#Creates a function to return bar graph of all wells with a line at the screening threshold
-#--------------
-#Version for Viability
-# merged_Df_NoCtrls
-# merged_Df_NoCtrls$Lethality <- (100 - merged_Df_NoCtrls$Viability)
-# 
-# for (i in 1:length(merged_Df_NoCtrls$Lethality)){
-#   if (merged_Df_NoCtrls$Lethality[i] > 80 | merged_Df_NoCtrls$Lethality[i] < -40){
-#     screen_Active <- c(merged_Df_NoCtrls$Plate[i], merged_Df_NoCtrls$Well_Condition[i], merged_Df_NoCtrls$Normalized_SD[i], merged_Df_NoCtrls$Average_foci_perCell[i], merged_Df_NoCtrls$Average_Cell_Count[i], merged_Df_NoCtrls$Normalized_Effect[i], merged_Df_NoCtrls$Lethality[i], paste0(merged_Df_NoCtrls$Well_Condition[i], "_", trial_Name))
-#      screen_Actives_Df <- rbind(screen_Actives_Df, screen_Active)}
-#   }
-# #--------------
-# 
-# filtered_data <- merged_Df_NoCtrls %>%
-#   filter(Lethality > 80 | Lethality < -40)
-# 
-# 
-# normalized_Sd_Bar_viability <- ggplot(data = filtered_data, aes(x=Gene, y = Lethality, fill = factor(ifelse(Lethality > 80 | Lethality < -40, "tofill", "nottofill")))) +
-#   
-#   geom_segment(data = filtered_data,
-#                aes(x = Gene, xend = Gene, y = 0, yend = Lethality),
-#                color = "red", size = 0.5) +
-#   
-#   geom_segment(data = filter(merged_Df_NoCtrls,  Lethality <= 80 & Lethality >= -40 ),
-#                aes(x = Gene, xend = Gene, y = 0, yend = Lethality),
-#                color = "black", size =0.001)+
-#       scale_fill_manual(values = c("tofill" = "red", "nottofill" ="gray27")) +
-# 
-#    theme_classic() +
-#    theme(axis.title.x=element_blank(),
-#          axis.text.x=element_blank(),
-#          axis.ticks.x=element_blank(),) +
-# # #Edit title as needed
-# # #------------------------------------------------------------------
-#    labs(y = "Lethality Relative to NT sgRNA", x = "sgRNA", title = "Lethality 4TorKO CRISPR Screen:") +
-# # #------------------------------------------------------------------
-# #
-#   scale_y_continuous(limits = c(-100, -50, -25, 0, 25, 50, 75, 100)) +
-#   scale_y_continuous(breaks=c(-100, -50, -40, -25, 0, 25, 50, 75,80, 100),  labels = function(x) paste0(x, "%")) +
-#   geom_hline(yintercept = c(80), color = "darkred", linetype = "dashed", size = 0.5) +
-#   geom_hline(yintercept = c(-40), color = "darkred", linetype = "dashed", size = 0.5) +
-# 
-#   #geom_text_repel(data = filter(merged_Df_NoCtrls, Lethality > 80 | Lethality < -40), aes(label = paste0(Gene)), box.padding = 0.3, size = 3, max.overlaps = Inf) +
-#   geom_text_repel(data = filtered_data, aes(label = paste0(Gene)), box.padding = 0.3, size = 3, max.overlaps = Inf) +
-#   guides(fill="none")+
-#   theme(plot.title = element_text(size = 18)) +
-#   theme(axis.title = element_text(size = 16))
-# 
-# # #Exports and saves normalized bar graph directly as a Tiff file
-# normalized_Sd_Bar
-# tiff(paste(image_Save_Location, "normalized_MLF2_GFP_4TorKO_top60percent_nopositivectrl.tiff", sep = ""), units="in", width=14, height=10, res=300)
-# print(normalized_Sd_Bar)
-# dev.off()
-
 
 #Inserts the normalized bar plot to excel worksheet
 normalized_Sd_Bar
@@ -1086,217 +863,7 @@ tiff(paste(image_Save_Location, "normalized_WT_ConfidentialVersion.tiff", sep = 
 print(normalized_Sd_Bar)
 dev.off()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-hitz <- as.list(merged_Df_NoCtrls[c(1:7, 9:11), "Gene.x"])
-hitz <- hitz[c(1:9, 11),]
-
-
-
-normalized_Sd_Bar <- ggplot(data = merged_Df_NoCtrls, aes(x=paste0(Plate, Well_Condition), y = Z_Score, fill = factor(ifelse(Z_Score >= 2.5, "tofill", "nottofill")))) +
-  geom_segment(data = filter(merged_Df_NoCtrls, Z_Score >= 3),
-               aes(x = paste0( Plate, Well_Condition), xend = paste0(Plate, Well_Condition), y = 0, yend = Z_Score),
-               color = "red", size = 0.5) +
-  geom_segment(data = filter(merged_Df_NoCtrls, Z_Score < 2.5),
-               aes(x = paste0(Plate, Well_Condition), xend = paste0(Plate, Well_Condition), y = 0, yend = Z_Score),
-               color = "black", size =0.1 )+
-  geom_segment(data = filter(merged_Df_NoCtrls, Gene.y == "TOR1B" | Gene.y == "TOR1A"),
-               aes(x = paste0(Plate, Well_Condition), xend = paste0(Plate, Well_Condition), y = 0, yend = Z_Score),
-               color = "green", size =2 )+
-  
-  # 
-  #  
-  # geom_segment(data = filter(merged_Df_NoCtrls, Gene.y %in% hitz),
-  #              aes(x = paste0(Plate, Well_Condition), xend = paste0(Plate, Well_Condition), y = 0, yend = Z_Score),
-  #              color = "red", size =1)+
-  # 
-  
-      scale_fill_manual(values = c("tofill" = "red", "nottofill" ="gray27")) +
-
-   theme_classic() +
-   theme(axis.title.x=element_blank(),
-         axis.text.x=element_blank(),
-         axis.ticks.x=element_blank(),) +
-# #Edit title as needed
-# #------------------------------------------------------------------
-   labs(y = "Z-Score (Significance)", x = "Gene", title = "Genome-Wide CRISPR KO Screen Recapitulating Cellular DYT1 Phenotype:") +
-# #------------------------------------------------------------------
-#
-
-  geom_hline(yintercept = c(2), color = "darkred", linetype = "dashed", size = 0.5) +
- # geom_text_repel(data = filter(merged_Df_NoCtrls, Z_Score >= 2.5 ), aes(label = paste0(Gene.y)), box.padding = 0.3, size = 2.75, max.overlaps = Inf) +
-  geom_text_repel(data = filter(merged_Df_NoCtrls, Gene.y == "TOR1B" | Gene.y == "TOR1A" ), aes(label = paste0(Gene.y)), box.padding = 0.3, size = 6, max.overlaps = Inf) +
-
- #geom_text_repel(data = filter(merged_Df_NoCtrls, Gene.y %in% hitz | Gene.y == "TOR1B" | Gene.y == "TOR1A"), aes(label = paste0(Gene.y)), box.padding = 0.5, size = 5.5, max.overlaps = Inf) +
-  guides(fill="none")+
-  theme(plot.title = element_text(size = 24)) +
-  theme(axis.title = element_text(size = 20)) +
-  
-  scale_y_continuous(limits = c( 0, 3, 5, 10)) +
-  scale_y_continuous(breaks=c( 0, 2, 4,6,8,10)) +
-    coord_cartesian(ylim = c(0, 8)) 
-
-
-
-tiff(paste(image_Save_Location, "normalized_WT_DMRFVersion.tiff", sep = ""), units="in", width=14, height=10, res=300)
-print(normalized_Sd_Bar)
-dev.off()
-
-
- 
- 
-normalized_Sd_Bar
- 
-hitz <- hitz[c(1:8, 11),]
-
-merged_df <- merge(gene_template, combined_across_sqls, by = c("Plate", "Well_Condition"), all = TRUE)
-
-
-merged_df <- merged_df %>%
-  group_by(Gene) %>%
-  summarize(across(where(is.numeric), ~ mean(.x, na.rm = TRUE)), across(where(~ !is.numeric(.x)), first))
-
-
 ```
-
-
-```{r}
-# for (i in 1:length(image_Set_List)){
-# 
-#   df1_MLF2 <- fread(paste0(file_Location, foci_Set_List[i]), select = 1:3)
-#   #df <- read.csv(paste0(file_Location, foci_Set_List[4]))
-# 
-#   per_image_nuc <- df1_MLF2 %>%
-#   group_by(ImageNumber) %>%
-#   summarise(Nuclei_Number = n(), mean_Nuc_Foci = mean(Children_MLF2_GFP_Count, na.rm = T))
-# 
-# 
-#   MLF2_Area <-  fread(paste0(file_Location, image_Set_List[i]), select = c("AreaOccupied_AreaOccupied_MLF2_GFP", "AreaOccupied_AreaOccupied_Cyto", "Count_MLF2_GFP", "ImageNumber", "URL_GFP"))
-#   #MLF2_image <- MLF2_image[, c(2,1, 11, 37)]
-#   #MLF2_Area$URL_GFP <- MLF2_Area$URL_GFP
-#   MLF2_Area$Ratio_totalMLF2_vs_Cyto <- (MLF2_Area$AreaOccupied_AreaOccupied_MLF2_GFP / MLF2_Area$AreaOccupied_AreaOccupied_Cyto)
-#   MLF2_Area$Avg_Size_Foci <- (MLF2_Area$AreaOccupied_AreaOccupied_MLF2_GFP / MLF2_Area$Count_MLF2_GFP)
-# 
-# 
-#   #Only use if there is an abberant dash between a random 2.... otherwise comment out
-#   MLF2_Area <- MLF2_Area %>%
-#   mutate_at(vars("URL_GFP"), funs(gsub("-2-", "", .)))
-# 
-#   #Extract plate, well and image number:
-#   
-#   #For 4TorKO cells
-#   # plate_Num_Temp <- str_split(MLF2_Area$URL_GFP, "-")
-#   # plate_Num_Temp <- sapply(plate_Num_Temp, "[[", 3)
-#   # plate_Num_Temp <- str_split(plate_Num_Temp, "_")
-#   # plate_Num <- sapply(plate_Num_Temp, "[[", 1)
-#   # Well_Num <- sapply(plate_Num_Temp, "[[", 2)
-#   # Image_Num <- sapply(plate_Num_Temp, "[[", 3)
-# 
-#   
-#   #For WT Cells:
-#   plate_Num_Temp <- str_split(MLF2_Area$URL_GFP, "_")[[1]]
-#   Well_Num <- plate_Num_Temp[length(plate_Num_Temp) - 2] #9
-#   Image_Num <- plate_Num_Temp[length(plate_Num_Temp) - 1] #10
-#   plate_Num_Temp <- plate_Num_Temp[length(plate_Num_Temp) - 3] #8
-#   plate_Num_Temp <- str_split(plate_Num_Temp, "-")[[1]]
-#   plate_Num <-plate_Num_Temp[length(plate_Num_Temp)]
-#   MLF2_Area$plate_Num <- plate_Num
-#   MLF2_Area$Well_Num <- Well_Num
-#   MLF2_Area$Imagecopy_Num <- Image_Num
-# 
-#   
-#   
-#   df <- (merge(per_image_nuc, MLF2_Area))
-# 
-#   df$condition <- df$Well_Num
-#   df <- na.omit(df)
-# 
-#   #Groups all wells that share a single condition for aggregate statistics
-#   per_Well_Plate <- df %>%
-#   group_by(plate_Num, Well_Num, condition) %>%
-#     #Filters out top image in case of screen aberration
-#   filter(mean_Nuc_Foci < max(mean_Nuc_Foci)) %>%
-#   summarise(Nuclei_Number = mean(Nuclei_Number, na.rm =T), mean_Nuc_Foci = mean(mean_Nuc_Foci, na.rm = T), Ratio_totalMLF2_vs_Cyto = mean(Ratio_totalMLF2_vs_Cyto, na.rm = T), Avg_Size_Foci = mean(Avg_Size_Foci, na.rm = T))
-# 
-# 
-#   individual_Plates <- split(per_Well_Plate, f = per_Well_Plate$plate_Num)
-# 
-#  #------------------------------------------------- 
-#   # #Version of code if there is an annoying "-" in path name: Otherwise comment out.
-#   # df1_MLF2 <- fread(paste0(file_Location, "move_data/", foci_Set_List[i]), select = 1:3)
-#   # #df <- read.csv(paste0(file_Location, foci_Set_List[4]))
-#   # 
-#   # per_image_nuc <- df1_MLF2 %>%
-#   # group_by(ImageNumber) %>%
-#   # summarise(Nuclei_Number = n(), mean_Nuc_Foci = mean(Children_MLF2_GFP_Count, na.rm = T))
-#   # 
-#   # 
-#   # MLF2_Area <-  fread(paste0(file_Location, "move_data/",image_Set_List[i]), select = c("AreaOccupied_AreaOccupied_MLF2_GFP", "AreaOccupied_AreaOccupied_Cyto", "Count_MLF2_GFP", "ImageNumber", "URL_GFP"))
-#   # #MLF2_image <- MLF2_image[, c(2,1, 11, 37)]
-#   # #MLF2_Area$URL_GFP <- MLF2_Area$URL_GFP
-#   # MLF2_Area$Ratio_totalMLF2_vs_Cyto <- (MLF2_Area$AreaOccupied_AreaOccupied_MLF2_GFP / MLF2_Area$AreaOccupied_AreaOccupied_Cyto)
-#   # MLF2_Area$Avg_Size_Foci <- (MLF2_Area$AreaOccupied_AreaOccupied_MLF2_GFP / MLF2_Area$Count_MLF2_GFP)
-#   #  
-#   # 
-#   # #Only use if there is an abberant dash between a random 2.... otherwise comment out
-#   # MLF2_Area <- MLF2_Area %>%
-#   # mutate_at(vars("URL_GFP"), funs(gsub("-2-", "_", .)))
-#   # 
-#   # #Extract plate, well and image number:
-#   # plate_Num_Temp <- str_split(MLF2_Area$URL_GFP, "_")
-#   # #plate_Num_Temp <- sapply(plate_Num_Temp, "[[", 3)
-#   # #plate_Num_Temp <- str_split(plate_Num_Temp, "_")
-#   # plate_Num <- sapply(plate_Num_Temp, "[[", 6)
-#   # Well_Num <- sapply(plate_Num_Temp, "[[", 11)
-#   # Image_Num <- sapply(plate_Num_Temp, "[[", 12)
-#   # 
-#   # MLF2_Area$plate_Num <- plate_Num
-#   # MLF2_Area$Well_Num <- Well_Num
-#   # MLF2_Area$Imagecopy_Num <- Image_Num
-#   # 
-#   # df <- (merge(per_image_nuc, MLF2_Area))
-#   # 
-#   # df$condition <- df$Well_Num
-#   # df <- na.omit(df)
-#   # 
-#   # #Groups all wells that share a single condition for aggregate statistics
-#   # per_Well_Plate <- df %>%
-#   # group_by(plate_Num, Well_Num, condition) %>%
-#   #   #Filters out top image in case of screen aberration
-#   # filter(mean_Nuc_Foci < max(mean_Nuc_Foci)) %>%
-#   # summarise(Nuclei_Number = mean(Nuclei_Number, na.rm =T), mean_Nuc_Foci = mean(mean_Nuc_Foci, na.rm = T), Ratio_totalMLF2_vs_Cyto = mean(Ratio_totalMLF2_vs_Cyto, na.rm = T), Avg_Size_Foci = mean(Avg_Size_Foci, na.rm = T))
-#   # 
-#   # 
-#   # individual_Plates <- split(per_Well_Plate, f = per_Well_Plate$plate_Num)
-#   # #Normally comment above out
-# #----------------------------------------------
-# 
-# 
-# }
-#   
-#   print(i)
-#   
-#    for (plate in 1:length(individual_Plates)){
-#       
-#       individual_Plates[[plate]]}}
-
-
-```
-
-
 
 
 ```{r}
@@ -1382,30 +949,6 @@ top_25_filtered <- top_25_filtered[, c(1,3,2)]
 
 } }) })
 
-```
-
-```{r}
-
-
-
-    
-
-```
-
-```{r}
-x <- rbind(c(2.31, 4.5, 3.6, 1.2, 3.0),
-           c(4.4, 3.3, 4.1, 2.45, 6.2),
-           c(1.1, 4.3, 5.2, 3.7, 5.33))
-
-# Redirect output to null device
-suppress_output <- capture.output({
-  medpolish_resultss <- medpolish(x)
-})
-
-# Print median polish results
-print(medpolish_resultss)
-
-medpolish_results <- medpolish(x)
 ```
 
 ```{r}
